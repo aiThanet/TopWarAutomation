@@ -37,13 +37,13 @@ class Topwar():
         # utils.search_img_and_click('./assets/10rally.jpg', self.cur_screen, self.device, 'Rally Button 10 Vits', 3)
         self.loop_attack_warhammer()
 
-    def loop_attack_warhammer(self, start_vit = 80):
+    def loop_attack_warhammer(self, start_vit = 100):
         self.vit = start_vit
         while(self.vit >= 10):
             print("Attack WarHammer:", self.number_attack_warhammer)
             self.attack_warhammer()
             self.number_attack_warhammer += 1
-            time.sleep(60 * 3.5)
+            time.sleep(60 * 4.5)
         
     def get_cur_screen(self):
         cur_screen = self.device.screencap()

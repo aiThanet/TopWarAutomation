@@ -23,7 +23,7 @@
     },
     "sequence": {
         "warhammer" : {
-            "seq": [[700,380,0.25], [200,590,0.25],[690,1060,0.2],[450,1200,1.5], [450,800,0.25]],
+            "seq": [[700,380,0.25], [200,590,0.25],[690,1060,0.2],[450,1200,2.5], [450,800,0.25]],
             "description": ["click rally tap", "click warhammer icon","click add level", "click search button", "click warhammer model"]
         }
     }
