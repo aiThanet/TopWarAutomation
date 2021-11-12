@@ -10,7 +10,7 @@ import utils
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json'):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 5, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_vit_consume = 8, war_hammer_level = 50):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -19,7 +19,12 @@ class Topwar():
         self.device = self.devices[device]
         self.number_attack_warhammer = 0
         self.first_time_warhammer = True
-        
+        self.max_queue = max_queue
+        self.is_allow_add_vit = is_allow_add_vit
+        self.is_allow10vit = is_allow10vit
+        self.is_allow50vit = is_allow50vit
+        self.war_hammer_vit_consume = war_hammer_vit_consume
+        self.war_hammer_level = war_hammer_level
         self.get_cur_screen()
        
         # load config
@@ -27,12 +32,13 @@ class Topwar():
             self.config = json.load(f)
 
         self.vit = self.get_vit()
-        self.loop_attack_warhammer()
+        print("Start vit:", self.vit)
 
-    def loop_attack_warhammer(self, max_queue = 5, is_allow_add_vit = False):
+
+    def loop_attack_warhammer(self):
         
         while(self.vit >= 10):
-            while(self.get_march_queue() >= max_queue):
+            while(self.get_march_queue() >= self.max_queue):
                 print("Exceed number of queue")
                 time.sleep(15)
             print("Attack WarHammer:", self.number_attack_warhammer)
@@ -40,9 +46,8 @@ class Topwar():
             self.number_attack_warhammer += 1
             time.sleep(60 * 1.5)
 
-            if self.vit  < 10 and is_allow_add_vit:
-                self.add_vit()
-            
+            if self.vit  < 10 and self.is_allow_add_vit:
+                self.add_vit()     
         
     def get_cur_screen(self, debug = False):
         cur_screen = self.device.screencap()
@@ -55,7 +60,7 @@ class Topwar():
             cv2.imshow("screen", self.cur_screen)
             cv2.waitKey(0)
 
-    def attack_warhammer(self, level = 50, war_hammer_vit_consume = 8):
+    def attack_warhammer(self):
         print("==============================================")
         print('Start attack WarHammer current vit:', self.vit)
 
@@ -74,7 +79,7 @@ class Topwar():
             40: 3,
             50: 4
         }
-        time_to_add_level = click_add_level[level]
+        time_to_add_level = click_add_level[self.war_hammer_level]
         warhammer_seq = self.config['sequence']['warhammer']['seq']
         warhammer_description = self.config['sequence']['warhammer']['description']
         for idx, click in enumerate(warhammer_seq):
@@ -90,8 +95,7 @@ class Topwar():
         utils.click(self.device, 470, 1350, 'click formation 2', 0.5)
         utils.click(self.device, self.width//2, 600, 'click battle', 0.3)
 
-        self.vit -= war_hammer_vit_consume
-
+        self.vit -= self.war_hammer_vit_consume
 
     def get_march_queue(self):
         """
@@ -116,7 +120,6 @@ class Topwar():
         except:
             print("Please open march queue tap")
             return 999
-
     
     def get_vit(self):
         """
@@ -138,20 +141,23 @@ class Topwar():
         black_mask = cv2.inRange(image_part, (0, 0, 0), (100, 95, 95))
 
         num_image = black_mask[:,210:290]
+        h, w = num_image.shape
+        num_image = cv2.resize(num_image, (w*3, h*3))
+        # cv2.imshow('r',num_image)
+        # cv2.waitKey(0)
         vit = utils.get_number_from_image(num_image)
 
         utils.click_by_pos(self.device, self.config['close_btn'], "Close vit bar", 1)
         return int(vit)
 
-
-    def add_vit(self, is_allow10vit = True, is_allow50vit = True):
+    def add_vit(self):
         self.click_bottom_menu("world")
         utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
         self.get_cur_screen()
 
         self.vit += 10
 
-        if is_allow10vit:
+        if self.is_allow10vit:
             is10vit_found, x, y = utils.search_img_by_part('./assets/vit_item10.jpg', self.cur_screen, self.config['vit_item_area'], 0.95)
             if is10vit_found:
                 utils.click(self.device, x, y, description="Click vit item +10")
@@ -160,7 +166,7 @@ class Topwar():
                 self.vit += 10
                 return
 
-        if is_allow50vit:
+        if self.is_allow50vit:
             is50vit_found, x, y = utils.search_img_by_part('./assets/vit_item50.jpg', self.cur_screen, self.config['vit_item_area'], 0.95)
             if is50vit_found:
                 utils.click(self.device, x, y, description="Click vit item +50")
@@ -168,8 +174,6 @@ class Topwar():
                 utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
                 self.vit += 50
                 return
-
-        
 
     def click_bottom_menu(self, menu='base', sleep_after_click=2.5):
         """
@@ -184,8 +188,12 @@ class Topwar():
         else:
             print('not found menu:', menu)
             return
-           
+        
+    def start(self):
+        self.loop_attack_warhammer()
+
 topwar = Topwar()
+topwar.start()
 
 
 

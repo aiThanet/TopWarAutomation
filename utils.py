@@ -79,7 +79,9 @@ def get_number_from_image(img):
     
     custom_config = '--oem 3 --psm 7 outputbase digits'
     text = pytesseract.image_to_string(img, config=custom_config)
+    # print(text)
     result = list(filter(lambda x: x.isnumeric(), text.split('\n')))
+
     if result:
         return int(result[0])
     else:
