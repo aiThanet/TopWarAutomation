@@ -33,4 +33,4 @@ There are some required parameters, you need to fill this with your information
 - your current vit can't exceed 100 otherwise it can't get the VIT
 
 ### Show Case
-![example](https://https://raw.githubusercontent.com/aiThanet/TopWarAutomation/master/images/Example.gif)
+![example](./images/Example.gif)
