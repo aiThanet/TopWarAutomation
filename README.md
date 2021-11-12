@@ -21,12 +21,12 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 
 ### Instruction
 There are some required parameters, you need to fill this with your information
-- max_queue: the maximum number of your march queue ex.5
-- is_allow_add_vit: if you set this flag as `True`, it will auto use your VIT capsure when it doesn't have enough VIT to use
-- is_allow10vit: if you set this flag as `True`, it will only use your small VIT capsure
-- is_allow50vit: if you set this flag as `True`, it will only use your Large VIT capsure
-- war_hammer_vit_consume: set the number of VIT will be consume when attack to warhammer (Normally it would be 10, unless you rally with Diana it will consume 8)
-- war_hammer_level: level of war hammer you can only put 10, 20, 30, 40 or 50
+- `max_queue`: the maximum number of your march queue ex.5
+- `is_allow_add_vit`: if you set this flag as `True`, it will auto use your VIT capsure when it doesn't have enough VIT to use
+- `is_allow10vit`: if you set this flag as `True`, it will only use your small VIT capsure
+- `is_allow50vit`: if you set this flag as `True`, it will only use your Large VIT capsure
+- `war_hammer_vit_consume`: set the number of VIT will be consume when attack to warhammer (Normally it would be 10, unless you rally with Diana it will consume 8)
+- `war_hammer_level`: level of war hammer you can only put 10, 20, 30, 40 or 50
 
 ### Limitation
 - it will freeze at some page and you need to manually go to base/world map
