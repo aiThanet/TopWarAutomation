@@ -6,6 +6,36 @@
         },
         "img" : "./assets/vit.jpg"
     },
+    "vit_bar" : {
+        "click_pos" : {
+            "x": 260,
+            "y": 35
+        }
+    },
+    "vit_area" : {
+        "pos" : {
+            "x" : [0.167,0.8333],
+            "y": [0.419,0.4375]
+        }
+    },
+    "vit_item_area": {
+        "pos" : {
+            "x" : [0.111,0.889],
+            "y": [0.47,0.588]
+        }
+    },
+    "close_btn":{
+        "click_pos" : {
+            "x": 822,
+            "y": 492
+        }
+    },
+    "use_btn":{
+        "click_pos" : {
+            "x": 450,
+            "y": 1090
+        }
+    },
     "map" : {
         "pos" : {
             "x" : [0.9,0.9],
@@ -29,7 +59,7 @@
     },
     "sequence": {
         "warhammer" : {
-            "seq": [[700,380,0.25], [200,590,0.25],[690,1060,0.2],[450,1200,3.5], [465,780,0.25]],
+            "seq": [[700,380,0.25], [200,590,0.25],[690,1060,0.2],[450,1200,3.5], [465,847,0.25]],
             "description": ["click rally tap", "click warhammer icon","click add level", "click search button", "click warhammer model"]
         }
     }

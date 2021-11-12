@@ -20,9 +20,9 @@ def get_partial_image(img, pos):
     tmp_img = img.copy()
     return tmp_img[pos[2]:pos[3], pos[0]:pos[1], :]
 
-def get_partial_image_by_key(key, config, img):
+def get_partial_image_by_key(pos, img):
     height, width, _ = img.shape
-    key_pos = config[key]['pos']
+    key_pos = pos['pos']
     ratio_pos = get_ratio_postion(key_pos, width, height)
     return get_partial_image(img, ratio_pos)
 
@@ -31,6 +31,10 @@ def click(device, x, y, description="", sleep_after_click=0.2):
         print(description)
     device.shell(f"input tap {x} {y}")
     time.sleep(sleep_after_click)
+
+def click_by_pos(device, pos, description="", sleep_after_click=0.2):
+    click(device, pos['click_pos']['x'], pos['click_pos']['y'], description, sleep_after_click)
+        
 
 def match_template(img, template, threshold=0.9):
     """
@@ -42,7 +46,7 @@ def match_template(img, template, threshold=0.9):
     return list(zip(*matches[::-1]))
 
 def search_image_by_key(key, config, screen, menu_key='img'):
-    image_part = get_partial_image_by_key(key, config, screen)
+    image_part = get_partial_image_by_key(config[key], screen)
     # cv2.imshow('a',image_part)
     # cv2.waitKey(0)
     template_img = cv2.imread(config[key][menu_key], 0)
@@ -51,45 +55,30 @@ def search_image_by_key(key, config, screen, menu_key='img'):
     
     return matches, template_w, template_h
 
-def search_img_and_click(img_path, screen, device, img_name, sleep_after_click, threshold = 0.8):
+def search_img(img_path, screen, threshold = 0.8):
     img = cv2.imread(img_path)
     template_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     height, width, _ = img.shape
     matches = match_template(screen, template_img, threshold)
 
-    print(matches)
+    if matches:
+        return True, matches[0][0]+width//2, matches[0][1]+height//2
+    else:
+        return False, -1, -1
 
-    click(device, matches[0][0]+width//2, matches[0][1]+height//2, f"click {img_name} image", sleep_after_click)
+def search_img_by_part(img_path, screen, pos, threshold = 0.8):
+    
+    image_part = get_partial_image_by_key(pos, screen)
+    is_found, x, y = search_img(img_path, image_part, threshold)
+    
+    x_offset, _, y_offset, _ = get_ratio_postion(pos['pos'], 900, 1600)
+
+    return is_found, x_offset + x, y_offset + y
 
 def get_number_from_image(img):
-    img_cv = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img_cv = cv2.bitwise_not(img_cv)
-
-    # (_, blackAndWhiteImage) = cv2.threshold(img_cv, 127, 255, cv2.THRESH_BINARY)
- 
-    # cv2.imshow('Black white image', blackAndWhiteImage)
-    # cv2.waitKey(0)
-    # # img_cv = cv2.adaptiveThreshold(img_cv,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-    # #         cv2.THRESH_BINARY,11,2)
-
-    # # img_cv = cv2.threshold(img_cv, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-
-
-    # edges = cv2.Canny(img_cv, 80, 120)
-    # lines = cv2.HoughLinesP(edges, 1, math.pi/2, 2, None, 30, 1)
-    # print(lines)
-    # for line in lines[0]:
-    #     pt1 = (line[0],line[1])
-    #     pt2 = (line[2],line[3])
-    #     cv2.line(img_cv, pt1, pt2, (0,0,255), 3)
-
-
-    # cv2.imshow('a',img_cv)
-    # cv2.waitKey(0)
     
     custom_config = '--oem 3 --psm 7 outputbase digits'
-    text = pytesseract.image_to_string(img_cv, config=custom_config)
+    text = pytesseract.image_to_string(img, config=custom_config)
     result = list(filter(lambda x: x.isnumeric(), text.split('\n')))
     if result:
         return int(result[0])
