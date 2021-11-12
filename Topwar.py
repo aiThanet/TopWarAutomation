@@ -1,3 +1,4 @@
+from ctypes import resize
 from ppadb.client import Client as AdbClient
 from PIL import Image
 import numpy as np
@@ -19,6 +20,7 @@ class Topwar():
         self.number_attack_warhammer = 0
         self.first_time_warhammer = True
         self.get_cur_screen()
+        
 
         # load config
         with open(config_file,'r') as f:
@@ -37,22 +39,31 @@ class Topwar():
         # utils.search_img_and_click('./assets/10rally.jpg', self.cur_screen, self.device, 'Rally Button 10 Vits', 3)
         self.loop_attack_warhammer()
 
-    def loop_attack_warhammer(self, start_vit = 100):
+    def loop_attack_warhammer(self, start_vit = 100, max_queue = 5):
         self.vit = start_vit
         while(self.vit >= 10):
+            while(self.get_march_queue() >= max_queue):
+                print("Exceed number of queue")
+                time.sleep(15)
             print("Attack WarHammer:", self.number_attack_warhammer)
             self.attack_warhammer()
             self.number_attack_warhammer += 1
-            time.sleep(60 * 4.5)
+            time.sleep(60 * 2.5)
+            
         
-    def get_cur_screen(self):
+    def get_cur_screen(self, debug = False):
         cur_screen = self.device.screencap()
         with open('screen.png','wb') as f:
             f.write(cur_screen)
         self.cur_screen = cv2.imread('screen.png')
         self.height, self.width, _ = self.cur_screen.shape
 
+        if debug:
+            cv2.imshow("screen", self.cur_screen)
+            cv2.waitKey(0)
+
     def attack_warhammer(self, level = 50):
+        print("==============================================")
         print('Start attack WarHammer current vit:', self.vit)
 
         self.click_bottom_menu(menu='world', sleep_after_click=3)
@@ -87,6 +98,23 @@ class Topwar():
         utils.click(self.device, self.width//2, 600, 'click battle', 0.3)
 
         self.vit -= 8
+
+    def get_march_queue(self):
+        self.click_bottom_menu('world')
+        self.get_cur_screen()
+        image_part = utils.get_partial_image_by_key('march_queue', self.config, self.cur_screen)
+        gray_img = cv2.cvtColor(image_part, cv2.COLOR_BGR2GRAY)
+        bitwise_gray_img = cv2.bitwise_not(gray_img)
+        h,w = bitwise_gray_img.shape
+        resized_bitwise_gray_img = cv2.resize(bitwise_gray_img, (w*2,h*2))
+
+        circles = cv2.HoughCircles(resized_bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 20)
+            
+        try:
+            return circles.shape[1]
+        except:
+            print("Please open march queue tap")
+            return 999
 
     
     def get_vit(self, vit_bar_length = 150):
