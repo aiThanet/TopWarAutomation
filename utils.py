@@ -1,6 +1,6 @@
 import cv2
-import math
 import time
+import uuid
 import numpy as np
 import pytesseract
 
@@ -16,19 +16,38 @@ def get_ratio_postion(pos, width, height):
     y_pos_2 = get_length_by_ratio(pos['y'][1], height)
     return (x_pos_1, x_pos_2, y_pos_1, y_pos_2)
 
+def get_postion(pos):
+    return (pos['x'][0], pos['x'][1], pos['y'][0], pos['y'][1])
+
 def get_partial_image(img, pos):
     tmp_img = img.copy()
     return tmp_img[pos[2]:pos[3], pos[0]:pos[1], :]
 
-def get_partial_image_by_key(pos, img):
-    height, width, _ = img.shape
+def get_partial_image_by_key(pos, img, debug= False):
+    
+    # height, width, _ = img.shape
     key_pos = pos['pos']
-    ratio_pos = get_ratio_postion(key_pos, width, height)
+    
+    ratio_pos = get_postion(key_pos)
+    if debug:
+        img_tmp = img.copy()
+        cv2.rectangle(img_tmp, (ratio_pos[0], ratio_pos[2]),(ratio_pos[1], ratio_pos[3]), color=(0, 0, 255),thickness=5)
+        uid = uuid.uuid1()
+        cv2.imwrite(f'{uid}.jpg',img_tmp)
     return get_partial_image(img, ratio_pos)
 
-def click(device, x, y, description="", sleep_after_click=0.2):
+def click(device, x, y, description="", sleep_after_click=0.2, debug=False):
     if description:
         print(description)
+    
+    if debug:
+        cur_screen = device.screencap()
+        with open('screen.png','wb') as f:
+            f.write(cur_screen)
+        cur_screen = cv2.imread('screen.png')
+        cv2.circle(cur_screen, (x, y), 10, color=(0, 0, 255),thickness=-1)
+        cv2.imwrite(f'{description}.jpg',cur_screen)
+
     device.shell(f"input tap {x} {y}")
     time.sleep(sleep_after_click)
 
@@ -47,8 +66,6 @@ def match_template(img, template, threshold=0.9):
 
 def search_image_by_key(key, config, screen, menu_key='img'):
     image_part = get_partial_image_by_key(config[key], screen)
-    # cv2.imshow('a',image_part)
-    # cv2.waitKey(0)
     template_img = cv2.imread(config[key][menu_key], 0)
     template_h, template_w  = template_img.shape
     matches = match_template(image_part, template_img)
@@ -69,9 +86,10 @@ def search_img(img_path, screen, threshold = 0.8):
 def search_img_by_part(img_path, screen, pos, threshold = 0.8):
     
     image_part = get_partial_image_by_key(pos, screen)
+    # h, w, _ = screen.shape
     is_found, x, y = search_img(img_path, image_part, threshold)
     
-    x_offset, _, y_offset, _ = get_ratio_postion(pos['pos'], 900, 1600)
+    x_offset, _, y_offset, _ = get_postion(pos['pos'])
 
     return is_found, x_offset + x, y_offset + y
 

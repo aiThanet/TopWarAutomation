@@ -10,7 +10,7 @@ import utils
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 5, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_vit_consume = 8, war_hammer_level = 50):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = True, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 50):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -23,7 +23,6 @@ class Topwar():
         self.is_allow_add_vit = is_allow_add_vit
         self.is_allow10vit = is_allow10vit
         self.is_allow50vit = is_allow50vit
-        self.war_hammer_vit_consume = war_hammer_vit_consume
         self.war_hammer_level = war_hammer_level
         self.get_cur_screen()
        
@@ -37,12 +36,16 @@ class Topwar():
 
     def loop_attack_warhammer(self):
         
+        if self.vit  < 10 and self.is_allow_add_vit:
+                self.add_vit()
+
         while(self.vit >= 10):
             while(self.get_march_queue() >= self.max_queue):
                 print("Exceed number of queue")
                 time.sleep(15)
             print("Attack WarHammer:", self.number_attack_warhammer)
             self.attack_warhammer()
+            self.vit = self.get_vit()
             self.number_attack_warhammer += 1
             time.sleep(60 * 1.5)
 
@@ -65,7 +68,7 @@ class Topwar():
         print('Start attack WarHammer current vit:', self.vit)
 
         self.click_bottom_menu(menu='world', sleep_after_click=3)
-        self.vit = self.get_vit()
+        
         if self.vit < 10:
             print('Not enough vit current vit:', self.vit)
             return
@@ -80,22 +83,30 @@ class Topwar():
             50: 4
         }
         time_to_add_level = click_add_level[self.war_hammer_level]
-        warhammer_seq = self.config['sequence']['warhammer']['seq']
+        warhammer_click_pos = self.config['sequence']['warhammer']['click_pos']
+        warhammer_wait_duration = self.config['sequence']['warhammer']['wait_duration']
         warhammer_description = self.config['sequence']['warhammer']['description']
-        for idx, click in enumerate(warhammer_seq):
-            if warhammer_description[idx] == 'click add level' and self.first_time_warhammer:
-                for i in range(time_to_add_level):
-                    utils.click(self.device, click[0], click[1], warhammer_description[idx], click[2])
-                self.first_time_warhammer = False
+        for idx, click in enumerate(warhammer_click_pos):
+            if warhammer_description[idx] == 'click add level':
+                if self.first_time_warhammer:
+                    for _ in range(time_to_add_level):
+                        utils.click(self.device, click['x'], click['y'], warhammer_description[idx], warhammer_wait_duration[idx])
+                    self.first_time_warhammer = False
             else:
-                utils.click(self.device, click[0], click[1], warhammer_description[idx], click[2])
+                utils.click(self.device, click['x'], click['y'], warhammer_description[idx], warhammer_wait_duration[idx])
 
-        # utils.search_img_and_click('./assets/10rally.jpg', self.cur_screen, self.device, 'Rally Button 10 Vits', 3)
-        utils.click(self.device, self.width//2, 600, 'click cally Button 10 Vits', 1)
-        utils.click(self.device, 470, 1350, 'click formation 2', 0.5)
-        utils.click(self.device, self.width//2, 600, 'click battle', 0.3)
+        utils.click_by_pos(self.device, self.config['rally_btn'], "Click Rally", 1)
+        utils.click_by_pos(self.device, self.config['formation_2_btn'], "Click formation 2", 0.3)
+        self.get_cur_screen()
+        is_found, _, _ = utils.search_img_by_part('./assets/addHero.jpg', self.cur_screen, self.config['select_hero_area'])
+        if is_found:
+            print("Hero in formation is empty!")
+            utils.click_by_pos(self.device, self.config['back_btn'], "Go back to world map")
+            utils.click_by_pos(self.device, self.config['ok_btn'], "Click OK", 0.5)
+            return
 
-        self.vit -= self.war_hammer_vit_consume
+        
+        utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
 
     def get_march_queue(self):
         """
@@ -104,7 +115,7 @@ class Topwar():
         print("Check march queue")
         self.click_bottom_menu('world')
         self.get_cur_screen()
-        image_part = utils.get_partial_image_by_key(self.config['march_queue'], self.cur_screen)
+        image_part = utils.get_partial_image_by_key(self.config['march_queue_area'], self.cur_screen)
         gray_img = cv2.cvtColor(image_part, cv2.COLOR_BGR2GRAY)
         bitwise_gray_img = cv2.bitwise_not(gray_img)
         h,w = bitwise_gray_img.shape
@@ -126,7 +137,7 @@ class Topwar():
         get remaining vit
         """
         self.click_bottom_menu("world")
-        utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
+        utils.click_by_pos(self.device, self.config['vit_bar_btn'], "Click vit bar", 1)
         self.get_cur_screen()
 
         image_part = utils.get_partial_image_by_key(self.config['vit_area'], self.cur_screen)
@@ -143,8 +154,6 @@ class Topwar():
         num_image = black_mask[:,210:290]
         h, w = num_image.shape
         num_image = cv2.resize(num_image, (w*3, h*3))
-        # cv2.imshow('r',num_image)
-        # cv2.waitKey(0)
         vit = utils.get_number_from_image(num_image)
 
         utils.click_by_pos(self.device, self.config['close_btn'], "Close vit bar", 1)
@@ -152,7 +161,7 @@ class Topwar():
 
     def add_vit(self):
         self.click_bottom_menu("world")
-        utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
+        utils.click_by_pos(self.device, self.config['vit_bar_btn'], "Click vit bar", 1)
         self.get_cur_screen()
 
         self.vit += 10
@@ -162,7 +171,7 @@ class Topwar():
             if is10vit_found:
                 utils.click(self.device, x, y, description="Click vit item +10")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +10", 1)
-                utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
+                utils.click_by_pos(self.device, self.config['vit_bar_btn'], "Click vit bar", 1)
                 self.vit += 10
                 return
 
@@ -171,7 +180,7 @@ class Topwar():
             if is50vit_found:
                 utils.click(self.device, x, y, description="Click vit item +50")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +50", 1)
-                utils.click_by_pos(self.device, self.config['vit_bar'], "Click vit bar", 1)
+                utils.click_by_pos(self.device, self.config['vit_bar_btn'], "Click vit bar", 1)
                 self.vit += 50
                 return
 
@@ -180,11 +189,10 @@ class Topwar():
         have 3 options: base , world and search
         """
         self.get_cur_screen()
-        matches, menu_w, menu_h = utils.search_image_by_key('bottom_menu', self.config, self.cur_screen, menu_key=menu)
+        is_found, x, y = utils.search_img_by_part(self.config['bottom_menu_area'][menu], self.cur_screen, self.config['bottom_menu_area'], 0.9)
 
-        y_offset = int(self.config['bottom_menu']['pos']['y'][0] * self.height)
-        if matches:
-            utils.click(self.device, (matches[0][0] + menu_w//2), (y_offset + matches[0][1] + menu_h//2), description = f'click {menu} button', sleep_after_click=sleep_after_click)
+        if is_found:
+            utils.click(self.device, x, y, description = f'click {menu} button', sleep_after_click=sleep_after_click)
         else:
             print('not found menu:', menu)
             return

@@ -1,27 +1,43 @@
 {
-    "vit" : {
-        "pos" : {
-            "x" : [0,5],
-            "y": [0,0.1]
-        },
-        "img" : "./assets/vit.jpg"
-    },
-    "vit_bar" : {
-        "click_pos" : {
-            "x": 260,
-            "y": 35
-        }
-    },
+    "width": 900,
+    "height": 1600, 
     "vit_area" : {
         "pos" : {
-            "x" : [0.167,0.8333],
-            "y": [0.419,0.4375]
+            "x" : [150,750],
+            "y": [670,700]
         }
     },
     "vit_item_area": {
         "pos" : {
-            "x" : [0.111,0.889],
-            "y": [0.47,0.588]
+            "x" : [100,800],
+            "y": [750,940]
+        }
+    },
+    "select_hero_area": {
+        "pos" : {
+            "x" : [60,300],
+            "y": [460,600]
+        }
+    },
+    "march_queue_area": {
+        "pos" : {
+            "x" : [10,75],
+            "y": [600,860]
+        }
+    },
+    "bottom_menu_area":{
+        "pos" : {
+            "x" : [0,900],
+            "y": [1280,1600]
+        },
+        "world" : "./assets/world_map.jpg",
+        "base" : "./assets/base_map.jpg",
+        "search" : "./assets/search.jpg"
+    },
+    "vit_bar_btn" : {
+        "click_pos" : {
+            "x": 260,
+            "y": 35
         }
     },
     "close_btn":{
@@ -36,30 +52,40 @@
             "y": 1090
         }
     },
-    "map" : {
-        "pos" : {
-            "x" : [0.9,0.9],
-            "y": [0.95,0.95]
+    "back_btn":{
+        "click_pos" : {
+            "x": 60,
+            "y": 75
         }
     },
-    "bottom_menu":{
-        "pos" : {
-            "x" : [0,1],
-            "y": [0.8,1]
-        },
-        "world" : "./assets/world_map.jpg",
-        "base" : "./assets/base_map.jpg",
-        "search" : "./assets/search.jpg"
+    "ok_btn":{
+        "click_pos" : {
+            "x": 630,
+            "y": 930
+        }
     },
-    "march_queue": {
-        "pos" : {
-            "x" : [0.011,0.083],
-            "y": [0.375,0.6]
+    "rally_btn": {
+        "click_pos" : {
+            "x": 450,
+            "y": 600
+        }
+    },
+    "formation_2_btn":{
+        "click_pos" : {
+            "x": 470,
+            "y": 1350
+        }
+    },
+    "battle_btn": {
+        "click_pos" : {
+            "x": 450,
+            "y": 600
         }
     },
     "sequence": {
         "warhammer" : {
-            "seq": [[700,380,0.25], [200,590,0.25],[690,1060,0.2],[450,1200,3.5], [465,847,0.25]],
+            "click_pos": [{ "x":700, "y":380}, { "x":200, "y":590}, { "x":690, "y":1060}, { "x":450, "y":1200}, { "x":465, "y":847}],
+            "wait_duration": [0.25, 0.25, 0.2, 3.5, 0.25],
             "description": ["click rally tap", "click warhammer icon","click add level", "click search button", "click warhammer model"]
         }
     }
