@@ -10,7 +10,7 @@ import utils
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = True, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 50):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 50):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -122,7 +122,7 @@ class Topwar():
         resized_bitwise_gray_img = cv2.resize(bitwise_gray_img, (w*2,h*2))
 
 
-        circles = cv2.HoughCircles(resized_bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 20)
+        circles = cv2.HoughCircles(resized_bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 15, minRadius=20)
             
         
         try:
