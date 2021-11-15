@@ -126,7 +126,7 @@ class Topwar():
         if debug:
             now = datetime.now()
             dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
-            cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-RGB-NC.jpg', image_part)
+            cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-NC.jpg', image_part)
             circles2 = np.uint16(np.around(circles))
             for i in circles2[0,:]:
                 # draw the outer circle
@@ -134,16 +134,12 @@ class Topwar():
                 # draw the center of the circle
                 cv2.circle(image_part,(i[0],i[1]),2,(0,0,255),3)
                 
-                
-                
-                
                 try:
-                    cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-RGB-C.jpg', image_part)
-                    cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-BW.jpg', resized_bitwise_gray_img)
+                    cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-C.jpg', image_part)
+                    cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-BW.jpg', bitwise_gray_img)
                 except:
-                    cv2.imwrite(f'./debug/march/W-{dt_string}.jpg', image_part)
+                    cv2.imwrite(f'./debug/march/{dt_string}-W.jpg', image_part)
             
-        
         try:
             print("num queue:",circles.shape)
             return circles.shape[1]

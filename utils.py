@@ -107,9 +107,9 @@ def get_number_from_image(img, debug= True):
     if result:
         res = int(result[0])
         if debug:
-            cv2.imwrite(f'./debug/num/C{res}-{dt_string}.jpg', img)
+            cv2.imwrite(f'./debug/num/{dt_string}-C{res}.jpg', img)
         return res
     else:
         if debug:
-            cv2.imwrite(f'./debug/num/W-{dt_string}.jpg', img)
+            cv2.imwrite(f'./debug/num/{dt_string}-W.jpg', img)
         return -1
