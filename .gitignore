@@ -142,3 +142,5 @@ test*.py
 
 # my screen
 screen.png
+
+debug/

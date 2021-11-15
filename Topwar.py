@@ -1,6 +1,5 @@
-from ctypes import resize
 from ppadb.client import Client as AdbClient
-from PIL import Image
+from datetime import datetime
 import numpy as np
 import time
 import sys
@@ -30,13 +29,14 @@ class Topwar():
         with open(config_file,'r') as f:
             self.config = json.load(f)
 
+        
         self.vit = self.get_vit()
         print("Start vit:", self.vit)
 
 
     def loop_attack_warhammer(self):
         
-        if self.vit  < 10 and self.is_allow_add_vit:
+        if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
                 self.add_vit()
 
         while(self.vit >= 10):
@@ -49,7 +49,7 @@ class Topwar():
             self.number_attack_warhammer += 1
             time.sleep(60 * 1.5)
 
-            if self.vit  < 10 and self.is_allow_add_vit:
+            if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
                 self.add_vit()     
         
     def get_cur_screen(self, debug = False):
@@ -65,7 +65,9 @@ class Topwar():
 
     def attack_warhammer(self):
         print("==============================================")
-        print('Start attack WarHammer current vit:', self.vit)
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print(current_time, 'Start attack WarHammer current vit:', self.vit)
 
         self.click_bottom_menu(menu='world', sleep_after_click=3)
         
@@ -108,7 +110,7 @@ class Topwar():
         
         utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
 
-    def get_march_queue(self):
+    def get_march_queue(self, debug=True):
         """
         get number of march in queue
         """
@@ -118,11 +120,28 @@ class Topwar():
         image_part = utils.get_partial_image_by_key(self.config['march_queue_area'], self.cur_screen)
         gray_img = cv2.cvtColor(image_part, cv2.COLOR_BGR2GRAY)
         bitwise_gray_img = cv2.bitwise_not(gray_img)
-        h,w = bitwise_gray_img.shape
-        resized_bitwise_gray_img = cv2.resize(bitwise_gray_img, (w*2,h*2))
 
+        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 10, param1=200, param2=60, minRadius=20)
 
-        circles = cv2.HoughCircles(resized_bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 15, minRadius=20)
+        if debug:
+            now = datetime.now()
+            dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
+            cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-RGB-NC.jpg', image_part)
+            circles2 = np.uint16(np.around(circles))
+            for i in circles2[0,:]:
+                # draw the outer circle
+                cv2.circle(image_part,(i[0],i[1]),i[2],(0,255,0),2)
+                # draw the center of the circle
+                cv2.circle(image_part,(i[0],i[1]),2,(0,0,255),3)
+                
+                
+                
+                
+                try:
+                    cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-RGB-C.jpg', image_part)
+                    cv2.imwrite(f'./debug/march/C{circles.shape[1]}-{dt_string}-BW.jpg', resized_bitwise_gray_img)
+                except:
+                    cv2.imwrite(f'./debug/march/W-{dt_string}.jpg', image_part)
             
         
         try:
@@ -156,6 +175,8 @@ class Topwar():
         num_image = cv2.resize(num_image, (w*3, h*3))
         vit = utils.get_number_from_image(num_image)
 
+        print("GET VIT:", vit)
+
         utils.click_by_pos(self.device, self.config['close_btn'], "Close vit bar", 1)
         return int(vit)
 
@@ -163,8 +184,6 @@ class Topwar():
         self.click_bottom_menu("world")
         utils.click_by_pos(self.device, self.config['vit_bar_btn'], "Click vit bar", 1)
         self.get_cur_screen()
-
-        self.vit += 10
 
         if self.is_allow10vit:
             is10vit_found, x, y = utils.search_img_by_part('./assets/vit_item10.jpg', self.cur_screen, self.config['vit_item_area'], 0.95)

@@ -3,6 +3,7 @@ import time
 import uuid
 import numpy as np
 import pytesseract
+from datetime import datetime
 
 def get_length_by_ratio(ratio, length):
     if ratio == 0:
@@ -93,14 +94,22 @@ def search_img_by_part(img_path, screen, pos, threshold = 0.8):
 
     return is_found, x_offset + x, y_offset + y
 
-def get_number_from_image(img):
+def get_number_from_image(img, debug= True):
     
     custom_config = '--oem 3 --psm 7 outputbase digits'
     text = pytesseract.image_to_string(img, config=custom_config)
+
+    now = datetime.now()
+    
     # print(text)
     result = list(filter(lambda x: x.isnumeric(), text.split('\n')))
-
+    dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
     if result:
-        return int(result[0])
+        res = int(result[0])
+        if debug:
+            cv2.imwrite(f'./debug/num/C{res}-{dt_string}.jpg', img)
+        return res
     else:
+        if debug:
+            cv2.imwrite(f'./debug/num/W-{dt_string}.jpg', img)
         return -1
