@@ -31,26 +31,24 @@ class Topwar():
 
         
         self.vit = self.get_vit()
-        print("Start vit:", self.vit)
+        utils.printLog("Start vit:", self.vit)
 
 
     def loop_attack_warhammer(self):
-        
-        if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
-                self.add_vit()
-
         while(self.vit >= 10):
             while(self.get_march_queue() >= self.max_queue):
-                print("Exceed number of queue")
+                utils.printLog("Exceed number of queue")
                 time.sleep(15)
-            print("Attack WarHammer:", self.number_attack_warhammer)
+            utils.printLog("Attack WarHammer:", self.number_attack_warhammer)
             self.attack_warhammer()
+            
             self.vit = self.get_vit()
-            self.number_attack_warhammer += 1
-            time.sleep(60 * 1.5)
-
             if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
-                self.add_vit()     
+                self.add_vit()
+
+            self.number_attack_warhammer += 1
+            time.sleep(60 * 2)
+            
         
     def get_cur_screen(self, debug = False):
         cur_screen = self.device.screencap()
@@ -64,17 +62,14 @@ class Topwar():
             cv2.waitKey(0)
 
     def attack_warhammer(self):
-        print("==============================================")
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print(current_time, 'Start attack WarHammer current vit:', self.vit)
-
+        print("====================================================")
         self.click_bottom_menu(menu='world', sleep_after_click=3)
         
         if self.vit < 10:
-            print('Not enough vit current vit:', self.vit)
+            utils.printLog(f'Not enough vit current vit: {self.vit}')
             return
-        print('Start attack WarHammer current vit:', self.vit)
+        utils.printLog('Start attack WarHammer current vit:', self.vit)
+        
 
         self.click_bottom_menu(menu='search')
         click_add_level = {
@@ -102,7 +97,7 @@ class Topwar():
         self.get_cur_screen()
         is_found, _, _ = utils.search_img_by_part('./assets/addHero.jpg', self.cur_screen, self.config['select_hero_area'])
         if is_found:
-            print("Hero in formation is empty!")
+            utils.printLog("Hero in formation is empty!")
             utils.click_by_pos(self.device, self.config['back_btn'], "Go back to world map")
             utils.click_by_pos(self.device, self.config['ok_btn'], "Click OK", 0.5)
             return
@@ -114,19 +109,23 @@ class Topwar():
         """
         get number of march in queue
         """
-        print("Check march queue")
+        utils.printLog("Check march queue")
         self.click_bottom_menu('world')
         self.get_cur_screen()
         image_part = utils.get_partial_image_by_key(self.config['march_queue_area'], self.cur_screen)
         gray_img = cv2.cvtColor(image_part, cv2.COLOR_BGR2GRAY)
         bitwise_gray_img = cv2.bitwise_not(gray_img)
-
-        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1, 10, param1=200, param2=60, minRadius=20)
-
-        if debug:
+        # cv2.imshow('test', bitwise_gray_img)
+        # cv2.imwrite('./test.jpg', bitwise_gray_img)
+        # cv2.waitKey(0)
+        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1,  minDist=15, param1=200, param2=50, minRadius=18)
+        # print(circles.shape)
+        if debug and circles is not None:
+        
+            image_part_tmp = image_part.copy()
             now = datetime.now()
             dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
-            cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-NC.jpg', image_part)
+            cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-NC.jpg', image_part_tmp)
             circles2 = np.uint16(np.around(circles))
             for i in circles2[0,:]:
                 # draw the outer circle
@@ -141,10 +140,10 @@ class Topwar():
                     cv2.imwrite(f'./debug/march/{dt_string}-W.jpg', image_part)
             
         try:
-            print("num queue:",circles.shape)
+            utils.printLog("num queue:",circles.shape)
             return circles.shape[1]
         except:
-            print("Please open march queue tap")
+            utils.printLog("Please open march queue tap")
             return 999
     
     def get_vit(self):
@@ -171,7 +170,7 @@ class Topwar():
         num_image = cv2.resize(num_image, (w*3, h*3))
         vit = utils.get_number_from_image(num_image)
 
-        print("GET VIT:", vit)
+        utils.printLog("GET VIT:", vit)
 
         utils.click_by_pos(self.device, self.config['close_btn'], "Close vit bar", 1)
         return int(vit)
@@ -209,7 +208,7 @@ class Topwar():
         if is_found:
             utils.click(self.device, x, y, description = f'click {menu} button', sleep_after_click=sleep_after_click)
         else:
-            print('not found menu:', menu)
+            utils.printLog('not found menu:', menu)
             return
         
     def start(self):

@@ -6,6 +6,7 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 1. python3
 2. ADB tools [link](https://developer.android.com/studio/command-line/adb)
 3. Enable `developer option` on Andriod
+4. Recommend screen size: `900 x 1600`
 
 ### How to run
 1. ` pip install -r requirements.txt `

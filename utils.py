@@ -39,7 +39,7 @@ def get_partial_image_by_key(pos, img, debug= False):
 
 def click(device, x, y, description="", sleep_after_click=0.2, debug=False):
     if description:
-        print(description)
+        printLog(description)
     
     if debug:
         cur_screen = device.screencap()
@@ -113,3 +113,8 @@ def get_number_from_image(img, debug= True):
         if debug:
             cv2.imwrite(f'./debug/num/{dt_string}-W.jpg', img)
         return -1
+
+def printLog(*texts):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print(current_time, ':', ' '.join([str(text) for text in texts]))
