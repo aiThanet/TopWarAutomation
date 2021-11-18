@@ -29,12 +29,10 @@ class Topwar():
         with open(config_file,'r') as f:
             self.config = json.load(f)
 
-        
-        self.vit = self.get_vit()
-        utils.printLog("Start vit:", self.vit)
-
 
     def loop_attack_warhammer(self):
+        self.vit = self.get_vit()
+        utils.printLog("Start vit:", self.vit)
         while(self.vit >= 10):
             while(self.get_march_queue() >= self.max_queue):
                 utils.printLog("Exceed number of queue")
@@ -102,7 +100,6 @@ class Topwar():
             utils.click_by_pos(self.device, self.config['ok_btn'], "Click OK", 0.5)
             return
 
-        
         utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
 
     def get_march_queue(self, debug=True):
@@ -118,7 +115,7 @@ class Topwar():
         # cv2.imshow('test', bitwise_gray_img)
         # cv2.imwrite('./test.jpg', bitwise_gray_img)
         # cv2.waitKey(0)
-        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1,  minDist=15, param1=200, param2=50, minRadius=18)
+        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1,  minDist=20, param1=200, param2=50, minRadius=18)
         # print(circles.shape)
         if debug and circles is not None:
         
@@ -210,12 +207,63 @@ class Topwar():
         else:
             utils.printLog('not found menu:', menu)
             return
+
+    def join_rally(self):
+        is_join = False
+
+        utils.click_by_pos(self.device, self.config['guild_btn'], "Click guild btn", 0.3)
+        utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 1)
+        self.get_cur_screen()
+        is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area'])
+        print('find close btn', is_found,x ,y)
+        while(is_found):
+            time.sleep(1)
+            utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 0.3)
+            self.get_cur_screen()
+            is_found, _, _ = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area'])
         
-    def start(self):
-        self.loop_attack_warhammer()
+        while(not is_join):
+            self.get_cur_screen()
+            is_found, x, y = utils.search_img_by_part("./assets/join_rally.jpg",self.cur_screen,  self.config['guild_rally_area'])
+            print('find join rally btn', is_found,x ,y)
+
+            if is_found:
+                utils.click(self.device, x, y, description="join rally", sleep_after_click=1)
+                utils.click_by_pos(self.device, self.config['first_unit_btn'], "Click first unit btn", 0.3)
+                utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
+                self.get_cur_screen()
+                is_found, x, y = utils.search_img_by_part("./assets/cancel.jpg", self.cur_screen,  self.config['cancel_area'])
+                if is_found:
+                    utils.click(self.device, x, y, description="click cancel")
+                    time.sleep(1)
+                else:
+                    is_join = True
+                    utils.click_by_pos(self.device, self.config['back_btn'], "Go back to guild page")
+                    utils.click_by_pos(self.device, self.config['back_btn'], "Go back to world map")
+                    self.click_bottom_menu(menu="world")
+                    time.sleep(60)
+            else:
+                time.sleep(1)
+                utils.click_by_pos(self.device, self.config['refresh_btn'], "Click refresh",0.5)
+
+            
+
+    def loop_join_rally(self):
+
+        while(True):
+            while(self.get_march_queue() >= self.max_queue):
+                    utils.printLog("Exceed number of queue")
+                    time.sleep(15)
+            self.join_rally()
+        
+    def start(self, bot_type = 'warhammer'):
+        if bot_type == 'warhammer':
+            self.loop_attack_warhammer()
+        elif bot_type == 'join_rally':
+            self.loop_join_rally()
 
 topwar = Topwar()
-topwar.start()
+topwar.start(bot_type="join_rally")
 
 
 

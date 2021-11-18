@@ -34,6 +34,24 @@
         "base" : "./assets/base_map.jpg",
         "search" : "./assets/search.jpg"
     },
+    "guild_rally_area": {
+        "pos" : {
+            "x": [390,490],
+            "y": [260,1300]
+        }
+    },
+    "cancel_area": {
+        "pos" : {
+            "x": [100,440],
+            "y": [870,990]
+        }
+    },
+    "close_area": {
+        "pos" : {
+            "x": [775,850],
+            "y": [150,210]
+        }
+    },
     "vit_bar_btn" : {
         "click_pos" : {
             "x": 260,
@@ -80,6 +98,30 @@
         "click_pos" : {
             "x": 450,
             "y": 600
+        }
+    },
+    "first_unit_btn": {
+        "click_pos" : {
+            "x": 86,
+            "y": 1470
+        }
+    },
+    "guild_btn": {
+        "click_pos" : {
+            "x": 827,
+            "y": 1070
+        }
+    },
+    "guild_battle_btn": {
+        "click_pos" : {
+            "x": 300,
+            "y": 1484
+        }
+    },
+    "refresh_btn": {
+        "click_pos" : {
+            "x": 130,
+            "y": 1500
         }
     },
     "sequence": {
