@@ -19,6 +19,7 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 1. Auto check remaining vit
 1. Auto use vit item
 1. Auto check available march queue
+1. Auto join guidl rally
 
 ### Instruction
 There are some required parameters, you need to fill this with your information

@@ -24,11 +24,11 @@ class Topwar():
         self.is_allow50vit = is_allow50vit
         self.war_hammer_level = war_hammer_level
         self.get_cur_screen()
-       
+
+        
         # load config
         with open(config_file,'r') as f:
             self.config = json.load(f)
-
 
     def loop_attack_warhammer(self):
         self.vit = self.get_vit()
@@ -102,7 +102,7 @@ class Topwar():
 
         utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
 
-    def get_march_queue(self, debug=True):
+    def get_march_queue(self, debug=False):
         """
         get number of march in queue
         """
@@ -141,7 +141,7 @@ class Topwar():
             return circles.shape[1]
         except:
             utils.printLog("Please open march queue tap")
-            return 999
+            return 0
     
     def get_vit(self):
         """
@@ -165,7 +165,12 @@ class Topwar():
         num_image = black_mask[:,210:290]
         h, w = num_image.shape
         num_image = cv2.resize(num_image, (w*3, h*3))
-        vit = utils.get_number_from_image(num_image)
+        
+        #dilate to imporve accuracy
+        kernel = np.ones((3,3), np.uint8) 
+        new_img = cv2.dilate(num_image, kernel, iterations=3)
+
+        vit = utils.get_number_from_image(new_img)
 
         utils.printLog("GET VIT:", vit)
 
@@ -214,42 +219,46 @@ class Topwar():
         utils.click_by_pos(self.device, self.config['guild_btn'], "Click guild btn", 0.3)
         utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 1)
         self.get_cur_screen()
-        is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area'])
-        print('find close btn', is_found,x ,y)
+        is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
         while(is_found):
             time.sleep(1)
+            utils.click(self.device, x, y, "Click close btn", 0.3)
             utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 0.3)
             self.get_cur_screen()
-            is_found, _, _ = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area'])
-        
+            is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
+
         while(not is_join):
             self.get_cur_screen()
             is_found, x, y = utils.search_img_by_part("./assets/join_rally.jpg",self.cur_screen,  self.config['guild_rally_area'])
-            print('find join rally btn', is_found,x ,y)
+            # print('find join rally btn', is_found,x ,y)
 
             if is_found:
                 utils.click(self.device, x, y, description="join rally", sleep_after_click=1)
                 utils.click_by_pos(self.device, self.config['first_unit_btn'], "Click first unit btn", 0.3)
                 utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
                 self.get_cur_screen()
-                is_found, x, y = utils.search_img_by_part("./assets/cancel.jpg", self.cur_screen,  self.config['cancel_area'])
-                if is_found:
-                    utils.click(self.device, x, y, description="click cancel")
+                is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_overtime_rally'])
+                print('found over time rally', is_found)
+                if is_found: 
+                    utils.click_by_pos(self.device, self.config['confirm_btn'], "Confirm cancel")
                     time.sleep(1)
                 else:
                     is_join = True
                     utils.click_by_pos(self.device, self.config['back_btn'], "Go back to guild page")
                     utils.click_by_pos(self.device, self.config['back_btn'], "Go back to world map")
                     self.click_bottom_menu(menu="world")
-                    time.sleep(60)
+                    # time.sleep(60)
             else:
                 time.sleep(1)
-                utils.click_by_pos(self.device, self.config['refresh_btn'], "Click refresh",0.5)
+                is_found, x, y = utils.search_img_by_part("./assets/refresh_btn.jpg",self.cur_screen,  self.config['refresh_area'])
+                print('found refresh button', is_found)
+                utils.click(self.device, x, y, "Click refresh btn")
+            
 
             
 
     def loop_join_rally(self):
-
+        self.click_bottom_menu(menu="world")
         while(True):
             while(self.get_march_queue() >= self.max_queue):
                     utils.printLog("Exceed number of queue")
@@ -263,7 +272,7 @@ class Topwar():
             self.loop_join_rally()
 
 topwar = Topwar()
-topwar.start(bot_type="join_rally")
+topwar.start(bot_type="warhammer")
 
 
 

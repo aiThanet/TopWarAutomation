@@ -96,16 +96,16 @@ def search_img_by_part(img_path, screen, pos, threshold = 0.8):
 
 def get_number_from_image(img, debug= True):
     
-    custom_config = '--oem 3 --psm 7 outputbase digits'
+    custom_config = '--oem 3 --psm 7 outputbase -c tessedit_char_whitelist=0123456789'
     text = pytesseract.image_to_string(img, config=custom_config)
+    result = ''.join([char for char in text if str(char).isdigit()])
 
     now = datetime.now()
     
     # print(text)
-    result = list(filter(lambda x: x.isnumeric(), text.split('\n')))
     dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
     if result:
-        res = int(result[0])
+        res = int(result)
         if debug:
             cv2.imwrite(f'./debug/num/{dt_string}-C{res}.jpg', img)
         return res

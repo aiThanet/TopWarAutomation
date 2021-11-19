@@ -40,16 +40,22 @@
             "y": [260,1300]
         }
     },
-    "cancel_area": {
-        "pos" : {
-            "x": [100,440],
-            "y": [870,990]
-        }
-    },
-    "close_area": {
+    "close_area_guild_battle_btn": {
         "pos" : {
             "x": [775,850],
             "y": [150,210]
+        }
+    },
+    "close_area_overtime_rally": {
+        "pos" : {
+            "x": [730, 793],
+            "y": [504, 564]
+        }
+    },
+    "refresh_area": {
+        "pos" : {
+            "x": [68,190],
+            "y": [1432,1550]
         }
     },
     "vit_bar_btn" : {
@@ -80,6 +86,12 @@
         "click_pos" : {
             "x": 630,
             "y": 930
+        }
+    },
+    "confirm_btn":{
+        "click_pos" : {
+            "x": 622,
+            "y": 1016
         }
     },
     "rally_btn": {
