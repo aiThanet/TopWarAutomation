@@ -11,7 +11,8 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 ### How to run
 1. ` pip install -r requirements.txt `
 2. Open Top War game
-3. `python3 Topwar.py`
+3. `python3 Topwar.py --type w` : for warhammer bot
+4. `python3 Topwar.py --type r` : for join rally bot
 
 
 ### Feature
@@ -33,7 +34,6 @@ There are some required parameters, you need to fill this with your information
 - **important1** you need to set your warhammer formation at 2nd formation
 - **important2** please go to `config.json` to set your position depend on your screen size
 - it will freeze at some page and you need to manually go to base/world map
-- your current vit can't exceed 100 otherwise it can't get the VIT
 
 ### Show Case
 ![example](./images/Example.gif)

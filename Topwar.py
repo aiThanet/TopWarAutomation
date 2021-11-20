@@ -6,10 +6,11 @@ import sys
 import json
 import cv2
 import utils
+import argparse
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 50):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 60):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -75,7 +76,8 @@ class Topwar():
             20: 1,
             30: 2,
             40: 3,
-            50: 4
+            50: 4,
+            60: 5
         }
         time_to_add_level = click_add_level[self.war_hammer_level]
         warhammer_click_pos = self.config['sequence']['warhammer']['click_pos']
@@ -141,7 +143,7 @@ class Topwar():
             return circles.shape[1]
         except:
             utils.printLog("Please open march queue tap")
-            return 0
+            return 999
     
     def get_vit(self):
         """
@@ -219,27 +221,27 @@ class Topwar():
         utils.click_by_pos(self.device, self.config['guild_btn'], "Click guild btn", 0.3)
         utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 1)
         self.get_cur_screen()
-        is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
-        while(is_found):
+        is_close_btn_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
+        while(is_close_btn_found):
             time.sleep(1)
             utils.click(self.device, x, y, "Click close btn", 0.3)
             utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 0.3)
             self.get_cur_screen()
-            is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
+            is_close_btn_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
 
         while(not is_join):
             self.get_cur_screen()
-            is_found, x, y = utils.search_img_by_part("./assets/join_rally.jpg",self.cur_screen,  self.config['guild_rally_area'])
+            is_join_found, x, y = utils.search_img_by_part("./assets/join_rally.jpg",self.cur_screen,  self.config['guild_rally_area'])
             # print('find join rally btn', is_found,x ,y)
 
-            if is_found:
+            if is_join_found:
                 utils.click(self.device, x, y, description="join rally", sleep_after_click=1)
                 utils.click_by_pos(self.device, self.config['first_unit_btn'], "Click first unit btn", 0.3)
                 utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
                 self.get_cur_screen()
-                is_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_overtime_rally'])
-                print('found over time rally', is_found)
-                if is_found: 
+                is_overtime_found, _, _ = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_overtime_rally'])
+                print('found over time rally', is_overtime_found)
+                if is_overtime_found: 
                     utils.click_by_pos(self.device, self.config['confirm_btn'], "Confirm cancel")
                     time.sleep(1)
                 else:
@@ -247,12 +249,19 @@ class Topwar():
                     utils.click_by_pos(self.device, self.config['back_btn'], "Go back to guild page")
                     utils.click_by_pos(self.device, self.config['back_btn'], "Go back to world map")
                     self.click_bottom_menu(menu="world")
-                    # time.sleep(60)
+                    time.sleep(30)
             else:
                 time.sleep(1)
-                is_found, x, y = utils.search_img_by_part("./assets/refresh_btn.jpg",self.cur_screen,  self.config['refresh_area'])
-                print('found refresh button', is_found)
-                utils.click(self.device, x, y, "Click refresh btn")
+                self.get_cur_screen()
+                is_refresh_found, x, y = utils.search_img_by_part("./assets/refresh_btn.jpg",self.cur_screen,  self.config['refresh_area'])
+                print('found refresh button', is_refresh_found)
+                if is_refresh_found:
+                    utils.click(self.device, x, y, "Click refresh btn")
+                else:
+                    self.get_cur_screen()
+                    is_world_found, _, _ = utils.search_img_by_part(self.config['bottom_menu_area']['world'], self.cur_screen, self.config['bottom_menu_area'], 0.9)
+                    if is_world_found:
+                        return
             
 
             
@@ -271,8 +280,21 @@ class Topwar():
         elif bot_type == 'join_rally':
             self.loop_join_rally()
 
-topwar = Topwar()
-topwar.start(bot_type="warhammer")
 
+
+# Create the parser
+my_parser = argparse.ArgumentParser()
+
+# Add the arguments
+my_parser.add_argument('--type', action='store', type=str, required=True, help="w - warhammer bot, r - join rally bot")
+
+# Execute the parse_args() method
+args = my_parser.parse_args()
+
+topwar = Topwar()
+if args.type == 'w':
+    topwar.start(bot_type="warhammer")
+elif args.type == 'r':
+    topwar.start(bot_type="join_rally")
 
 
