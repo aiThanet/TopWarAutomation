@@ -114,6 +114,18 @@ def get_number_from_image(img, debug= True):
             cv2.imwrite(f'./debug/num/{dt_string}-W.jpg', img)
         return -1
 
+def compare_image(image1, image2, similar_threshold = 0.8):
+    img1 = cv2.imread(image1)
+    img2 = cv2.imread(image2)
+    img1_hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
+    img2_hsv = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)
+
+    hist_img1 = cv2.calcHist([img1_hsv],[0,1], None, [180,256], [0,180,0,256])
+    hist_img2 = cv2.calcHist([img2_hsv],[0,1], None, [180,256], [0,180,0,256])
+
+    metric_val = cv2.compareHist(hist_img1,hist_img2, cv2.HISTCMP_CORREL)
+    return metric_val >= similar_threshold
+
 def printLog(*texts):
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")

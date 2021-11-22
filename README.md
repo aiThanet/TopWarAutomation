@@ -13,6 +13,7 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 2. Open Top War game
 3. `python3 Topwar.py --type w` : for warhammer bot
 4. `python3 Topwar.py --type r` : for join rally bot
+   1. add `--skip` flag to skip joining refugee camp
 
 
 ### Feature
