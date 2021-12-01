@@ -10,7 +10,7 @@ import argparse
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = False, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 60, skip_refugee = True):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = True, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 60, skip_refugee = True):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -31,6 +31,9 @@ class Topwar():
         # load config
         with open(config_file,'r') as f:
             self.config = json.load(f)
+        self.config['march_queue_area']["pos"]["y"][1] += self.max_queue * 65
+
+        utils.printLog("===^^^ Start Top War BOT ^^^===")
 
     def loop_attack_warhammer(self):
         self.vit = self.get_vit()
@@ -48,6 +51,8 @@ class Topwar():
 
             self.number_attack_warhammer += 1
             time.sleep(60 * 2)
+
+    
             
         
     def get_cur_screen(self, debug = False):
@@ -112,13 +117,14 @@ class Topwar():
         utils.printLog("Check march queue")
         self.click_bottom_menu('world')
         self.get_cur_screen()
+        
         image_part = utils.get_partial_image_by_key(self.config['march_queue_area'], self.cur_screen)
         gray_img = cv2.cvtColor(image_part, cv2.COLOR_BGR2GRAY)
         bitwise_gray_img = cv2.bitwise_not(gray_img)
         # cv2.imshow('test', bitwise_gray_img)
         # cv2.imwrite('./test.jpg', bitwise_gray_img)
         # cv2.waitKey(0)
-        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1,  minDist=20, param1=200, param2=50, minRadius=18)
+        circles = cv2.HoughCircles(bitwise_gray_img, cv2.HOUGH_GRADIENT, 1,  minDist=40, param1=200, param2=50, minRadius=18, maxRadius=28)
         # print(circles.shape)
         if debug and circles is not None:
         
@@ -127,18 +133,23 @@ class Topwar():
             dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
             cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-NC.jpg', image_part_tmp)
             circles2 = np.uint16(np.around(circles))
+            min_circle_radius = 999
+            max_circle_radius = 0
             for i in circles2[0,:]:
                 # draw the outer circle
                 cv2.circle(image_part,(i[0],i[1]),i[2],(0,255,0),2)
                 # draw the center of the circle
                 cv2.circle(image_part,(i[0],i[1]),2,(0,0,255),3)
-                
+                if i[2] > max_circle_radius:
+                    max_circle_radius = i[2]
+                if i[2] < min_circle_radius:
+                    min_circle_radius = i[2]
                 try:
                     cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-RGB-C.jpg', image_part)
                     cv2.imwrite(f'./debug/march/{dt_string}-C{circles.shape[1]}-BW.jpg', bitwise_gray_img)
                 except:
                     cv2.imwrite(f'./debug/march/{dt_string}-W.jpg', image_part)
-            
+            print("max_circle_radius",max_circle_radius,"min_circle_radius",min_circle_radius)
         try:
             utils.printLog("num queue:",circles.shape)
             return circles.shape[1]
@@ -186,7 +197,8 @@ class Topwar():
         self.get_cur_screen()
 
         if self.is_allow10vit:
-            is10vit_found, x, y = utils.search_img_by_part('./assets/vit_item10.jpg', self.cur_screen, self.config['vit_item_area'], 0.95)
+            is10vit_found, x, y = utils.search_img_by_part('./assets/vit_item10.jpg', self.cur_screen, self.config['vit_item_area'], 0.8)
+            print("found vit 10",is10vit_found, x, y)
             if is10vit_found:
                 utils.click(self.device, x, y, description="Click vit item +10")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +10", 1)
@@ -195,7 +207,8 @@ class Topwar():
                 return
 
         if self.is_allow50vit:
-            is50vit_found, x, y = utils.search_img_by_part('./assets/vit_item50.jpg', self.cur_screen, self.config['vit_item_area'], 0.95)
+            is50vit_found, x, y = utils.search_img_by_part('./assets/vit_item50.jpg', self.cur_screen, self.config['vit_item_area'], 0.8)
+            print("found vit 50",is50vit_found, x, y)
             if is50vit_found:
                 utils.click(self.device, x, y, description="Click vit item +50")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +50", 1)
@@ -252,7 +265,9 @@ class Topwar():
                 is_overtime_found, _, _ = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_overtime_rally'])
                 print('found over time rally', is_overtime_found)
                 if is_overtime_found: 
-                    utils.click_by_pos(self.device, self.config['confirm_btn'], "Confirm cancel")
+                    utils.click_by_pos(self.device, self.config['confirm_cancel_btn'], "Confirm cancel")
+                    utils.click_by_pos(self.device, self.config['back_btn'], "Go back")
+                    utils.click_by_pos(self.device, self.config['confirm_ok_btn'], "Confirm go back")
                     time.sleep(1)
                 else:
                     is_join = True

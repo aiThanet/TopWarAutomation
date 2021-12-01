@@ -22,7 +22,7 @@
     "march_queue_area": {
         "pos" : {
             "x" : [10,75],
-            "y": [600,860]
+            "y": [600,600]
         }
     },
     "bottom_menu_area":{
@@ -88,7 +88,13 @@
             "y": 930
         }
     },
-    "confirm_btn":{
+    "confirm_cancel_btn":{
+        "click_pos" : {
+            "x": 280,
+            "y": 1016
+        }
+    },
+    "confirm_ok_btn":{
         "click_pos" : {
             "x": 622,
             "y": 1016

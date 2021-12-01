@@ -94,7 +94,7 @@ def search_img_by_part(img_path, screen, pos, threshold = 0.8):
 
     return is_found, x_offset + x, y_offset + y
 
-def get_number_from_image(img, debug= True):
+def get_number_from_image(img, debug= False):
     
     custom_config = '--oem 3 --psm 7 outputbase -c tessedit_char_whitelist=0123456789'
     text = pytesseract.image_to_string(img, config=custom_config)
@@ -129,4 +129,7 @@ def compare_image(image1, image2, similar_threshold = 0.8):
 def printLog(*texts):
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    print(current_time, ':', ' '.join([str(text) for text in texts]))
+    text = current_time + ' : ' + ' '.join([str(text) for text in texts])
+    print(text)
+    with open('log', 'a') as f:
+        f.write(text + '\n')
