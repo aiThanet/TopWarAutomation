@@ -99,7 +99,7 @@ class Topwar():
         if self.vit < 5:
             utils.printLog(f'Not enough vit current vit: {self.vit}')
             return
-        utils.printLog('Start attack WarHammer current vit:', self.vit)
+        utils.printLog('Start attack Refugee current vit:', self.vit)
         
         
         click_pos = self.config['sequence']['refugee']['click_pos']
@@ -210,7 +210,7 @@ class Topwar():
 
         if self.is_allow10vit:
             is10vit_found, x, y = utils.search_img_by_part('./assets/vit_item10.jpg', self.cur_screen, self.config['vit_item_area'], 0.8)
-            print("found vit 10",is10vit_found, x, y)
+            utils.printLog(f"found vit 10 {is10vit_found} {x} {y}")
             if is10vit_found:
                 utils.click(self.device, x, y, description="Click vit item +10")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +10", 1)
@@ -220,7 +220,7 @@ class Topwar():
 
         if self.is_allow50vit:
             is50vit_found, x, y = utils.search_img_by_part('./assets/vit_item50.jpg', self.cur_screen, self.config['vit_item_area'], 0.8)
-            print("found vit 50",is50vit_found, x, y)
+            utils.printLog(f"found vit 50 {is50vit_found} {x} {y}")
             if is50vit_found:
                 utils.click(self.device, x, y, description="Click vit item +50")
                 utils.click_by_pos(self.device, self.config['use_btn'], "Click use vit item +50", 1)
@@ -248,7 +248,7 @@ class Topwar():
             while(self.get_march_queue() >= self.max_queue):
                 utils.printLog("Exceed number of queue")
                 time.sleep(5)
-            utils.printLog("Attack WarHammer:", self.number_attack_warhammer)
+            utils.printLog("Number Attack WarHammer:", self.number_attack_warhammer)
             self.attack_warhammer()
             
             self.vit = self.get_vit()
@@ -340,7 +340,7 @@ class Topwar():
             while(self.get_march_queue() >= self.max_queue):
                 utils.printLog("Exceed number of queue")
                 time.sleep(5)
-            utils.printLog("Attack Refugee Camp:", self.number_attack_refugee)
+            utils.printLog("Number Attack Refugee Camp:", self.number_attack_refugee)
             attack_result = self.attack_refugee()
             
             self.vit = self.get_vit()
