@@ -36,23 +36,6 @@ class Topwar():
 
         utils.printLog("===^^^ Start Top War BOT ^^^===")
 
-    def loop_attack_warhammer(self):
-        self.vit = self.get_vit()
-        utils.printLog("Start vit:", self.vit)
-        while(self.vit >= 10):
-            while(self.get_march_queue() >= self.max_queue):
-                utils.printLog("Exceed number of queue")
-                time.sleep(15)
-            utils.printLog("Attack WarHammer:", self.number_attack_warhammer)
-            self.attack_warhammer()
-            
-            self.vit = self.get_vit()
-            if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
-                self.add_vit()
-
-            self.number_attack_warhammer += 1
-            time.sleep(60 * 2)
-
     def get_cur_screen(self, debug = False):
         cur_screen = self.device.screencap()
         with open('screen.png','wb') as f:
@@ -126,16 +109,18 @@ class Topwar():
         utils.click(self.device, click_pos[0]['x'], click_pos[0]['y'], description[0], wait_duration[0])
 
         self.get_cur_screen()
-        is_found, x, y = utils.search_img_by_part('./assets/refugee_letter.jpg', self.cur_screen, self.config['inventory_area'],threshold=0.6)
+        is_found, x, y = utils.search_img_by_part('./assets/refugee_letter.jpg', self.cur_screen, self.config['inventory_area'],threshold=0.5)
         if(is_found):
+            utils.printLog("Found refugee letter")
             utils.click(self.device, x, y, description="Click refugee letter", sleep_after_click=0.5)
         else:
             utils.printLog("Can not find refugee letter")
-            return
-
+            utils.click_by_pos(self.device, self.config['back_btn'], "Go back")
+            return False
         
         for idx, click in enumerate(click_pos[1:]):
             utils.click(self.device, click['x'], click['y'], description[idx], wait_duration[idx])
+        return True
     
     def get_march_queue(self, debug=False):
         """
@@ -256,6 +241,23 @@ class Topwar():
             utils.printLog('not found menu:', menu)
             return
 
+    def loop_attack_warhammer(self):
+        self.vit = self.get_vit()
+        utils.printLog("Start vit:", self.vit)
+        while(self.vit >= 10):
+            while(self.get_march_queue() >= self.max_queue):
+                utils.printLog("Exceed number of queue")
+                time.sleep(5)
+            utils.printLog("Attack WarHammer:", self.number_attack_warhammer)
+            self.attack_warhammer()
+            
+            self.vit = self.get_vit()
+            if self.vit  < 10 and self.is_allow_add_vit and self.vit != -1:
+                self.add_vit()
+
+            self.number_attack_warhammer += 1
+            time.sleep(60 * 2)
+
     def join_rally(self):
         not_found_refresh_count = 0
         is_join = False
@@ -328,7 +330,7 @@ class Topwar():
         while(True):
             while(self.get_march_queue() >= self.max_queue):
                     utils.printLog("Exceed number of queue")
-                    time.sleep(15)
+                    time.sleep(5)
             self.join_rally()
 
     def loop_attack_refugee(self):
@@ -337,16 +339,17 @@ class Topwar():
         while(self.vit >= 5):
             while(self.get_march_queue() >= self.max_queue):
                 utils.printLog("Exceed number of queue")
-                time.sleep(15)
+                time.sleep(5)
             utils.printLog("Attack Refugee Camp:", self.number_attack_refugee)
-            self.attack_refugee()
+            attack_result = self.attack_refugee()
             
             self.vit = self.get_vit()
             if self.vit  < 5 and self.is_allow_add_vit and self.vit != -1:
                 self.add_vit()
 
-            self.number_attack_refugee += 1
-            time.sleep(65)
+            if attack_result:
+                self.number_attack_refugee += 1
+                time.sleep(65)
         
     def start(self, bot_type = 'warhammer'):
         if bot_type == 'warhammer':
