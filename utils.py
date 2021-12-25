@@ -52,7 +52,7 @@ def click(device, x, y, description="", sleep_after_click=0.2, debug=False):
     device.shell(f"input tap {x} {y}")
     time.sleep(sleep_after_click)
 
-def click_by_pos(device, pos, description="", sleep_after_click=0.2):
+def click_by_pos(device, pos, description="", sleep_after_click=0.5):
     click(device, pos['click_pos']['x'], pos['click_pos']['y'], description, sleep_after_click)
         
 

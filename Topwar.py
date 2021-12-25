@@ -10,7 +10,7 @@ import argparse
 
 
 class Topwar():
-    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = True, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 60, skip_refugee = True):
+    def __init__(self, clientIP = "127.0.0.1", clientPort = 5037, device = 0, config_file = './config.json', max_queue = 4, is_allow_add_vit = True, is_allow10vit = True, is_allow50vit = True, war_hammer_level = 70, skip_refugee = True):
         self.version = "0.1"
         self.adbClient = AdbClient(host=clientIP, port=clientPort)
         self.devices = self.adbClient.devices()
@@ -18,6 +18,7 @@ class Topwar():
             sys.exit("Error: Not found device")
         self.device = self.devices[device]
         self.number_attack_warhammer = 0
+        self.number_attack_refugee = 0
         self.first_time_warhammer = True
         self.max_queue = max_queue
         self.is_allow_add_vit = is_allow_add_vit
@@ -52,9 +53,6 @@ class Topwar():
             self.number_attack_warhammer += 1
             time.sleep(60 * 2)
 
-    
-            
-        
     def get_cur_screen(self, debug = False):
         cur_screen = self.device.screencap()
         with open('screen.png','wb') as f:
@@ -75,7 +73,6 @@ class Topwar():
             return
         utils.printLog('Start attack WarHammer current vit:', self.vit)
         
-
         self.click_bottom_menu(menu='search')
         click_add_level = {
             10: 0,
@@ -83,7 +80,9 @@ class Topwar():
             30: 2,
             40: 3,
             50: 4,
-            60: 5
+            60: 5,
+            70: 6,
+            80: 7,
         }
         time_to_add_level = click_add_level[self.war_hammer_level]
         warhammer_click_pos = self.config['sequence']['warhammer']['click_pos']
@@ -99,7 +98,7 @@ class Topwar():
                 utils.click(self.device, click['x'], click['y'], warhammer_description[idx], warhammer_wait_duration[idx])
 
         utils.click_by_pos(self.device, self.config['rally_btn'], "Click Rally", 1)
-        utils.click_by_pos(self.device, self.config['formation_2_btn'], "Click formation 2", 0.3)
+        utils.click_by_pos(self.device, self.config['formation_2_btn'], "Click formation 2", 0.5)
         self.get_cur_screen()
         is_found, _, _ = utils.search_img_by_part('./assets/addHero.jpg', self.cur_screen, self.config['select_hero_area'])
         if is_found:
@@ -108,8 +107,36 @@ class Topwar():
             utils.click_by_pos(self.device, self.config['ok_btn'], "Click OK", 0.5)
             return
 
-        utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
+        utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.5)
 
+    def attack_refugee(self):
+        print("====================================================")
+        self.click_bottom_menu(menu='world', sleep_after_click=3)
+        
+        if self.vit < 5:
+            utils.printLog(f'Not enough vit current vit: {self.vit}')
+            return
+        utils.printLog('Start attack WarHammer current vit:', self.vit)
+        
+        
+        click_pos = self.config['sequence']['refugee']['click_pos']
+        wait_duration = self.config['sequence']['refugee']['wait_duration']
+        description = self.config['sequence']['refugee']['description']
+
+        utils.click(self.device, click_pos[0]['x'], click_pos[0]['y'], description[0], wait_duration[0])
+
+        self.get_cur_screen()
+        is_found, x, y = utils.search_img_by_part('./assets/refugee_letter.jpg', self.cur_screen, self.config['inventory_area'],threshold=0.6)
+        if(is_found):
+            utils.click(self.device, x, y, description="Click refugee letter", sleep_after_click=0.5)
+        else:
+            utils.printLog("Can not find refugee letter")
+            return
+
+        
+        for idx, click in enumerate(click_pos[1:]):
+            utils.click(self.device, click['x'], click['y'], description[idx], wait_duration[idx])
+    
     def get_march_queue(self, debug=False):
         """
         get number of march in queue
@@ -233,15 +260,15 @@ class Topwar():
         not_found_refresh_count = 0
         is_join = False
 
-        utils.click_by_pos(self.device, self.config['guild_btn'], "Click guild btn", 0.3)
-        utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 1)
+        utils.click_by_pos(self.device, self.config['guild_btn'], "Click guild btn", 2)
+        utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 2)
         self.get_cur_screen()
         is_close_btn_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
         print('find close guild battke btn', is_close_btn_found)
         while(is_close_btn_found):
             time.sleep(1)
-            utils.click(self.device, x, y, "Click close btn", 0.3)
-            utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 0.3)
+            utils.click(self.device, x, y, "Click close btn", 0.5)
+            utils.click_by_pos(self.device, self.config['guild_battle_btn'], "Click guild battle btn", 0.5)
             self.get_cur_screen()
             is_close_btn_found, x, y = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_guild_battle_btn'])
             print('find close guild battke btn', is_close_btn_found)
@@ -259,8 +286,8 @@ class Topwar():
                     continue
 
                 utils.click(self.device, x, y, description="join rally", sleep_after_click=1)
-                utils.click_by_pos(self.device, self.config['first_unit_btn'], "Click first unit btn", 0.3)
-                utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.3)
+                utils.click_by_pos(self.device, self.config['first_unit_btn'], "Click first unit btn", 0.5)
+                utils.click_by_pos(self.device, self.config['battle_btn'], "Click battle btn", 0.5)
                 self.get_cur_screen()
                 is_overtime_found, _, _ = utils.search_img_by_part("./assets/close_btn.jpg",self.cur_screen,  self.config['close_area_overtime_rally'])
                 print('found over time rally', is_overtime_found)
@@ -295,7 +322,6 @@ class Topwar():
                         return
             
 
-            
 
     def loop_join_rally(self):
         self.click_bottom_menu(menu="world")
@@ -304,12 +330,31 @@ class Topwar():
                     utils.printLog("Exceed number of queue")
                     time.sleep(15)
             self.join_rally()
+
+    def loop_attack_refugee(self):
+        self.vit = self.get_vit()
+        utils.printLog("Start vit:", self.vit)
+        while(self.vit >= 5):
+            while(self.get_march_queue() >= self.max_queue):
+                utils.printLog("Exceed number of queue")
+                time.sleep(15)
+            utils.printLog("Attack Refugee Camp:", self.number_attack_refugee)
+            self.attack_refugee()
+            
+            self.vit = self.get_vit()
+            if self.vit  < 5 and self.is_allow_add_vit and self.vit != -1:
+                self.add_vit()
+
+            self.number_attack_refugee += 1
+            time.sleep(65)
         
     def start(self, bot_type = 'warhammer'):
         if bot_type == 'warhammer':
             self.loop_attack_warhammer()
         elif bot_type == 'join_rally':
             self.loop_join_rally()
+        elif bot_type == 'refugee':
+            self.loop_attack_refugee()
 
 
 
@@ -317,7 +362,7 @@ class Topwar():
 my_parser = argparse.ArgumentParser()
 
 # Add the arguments
-my_parser.add_argument('--type', action='store', type=str, required=True, help="w - warhammer bot, r - join rally bot")
+my_parser.add_argument('--type', action='store', type=str, required=True, help="w - warhammer bot, j - join rally bot, r - refugee camp")
 my_parser.add_argument('--queue', default=4, action='store', type=int, help="max number of queue")
 my_parser.add_argument('--skip', default=False, action='store_true', help="add this flag to skip joining refugee camp")
 
@@ -328,7 +373,10 @@ args = my_parser.parse_args()
 topwar = Topwar(max_queue=args.queue, skip_refugee=args.skip)
 if args.type == 'w':
     topwar.start(bot_type="warhammer")
-elif args.type == 'r':
+elif args.type == 'j':
     topwar.start(bot_type="join_rally")
+elif args.type == 'r':
+    topwar.start(bot_type="refugee")
+
 
 
