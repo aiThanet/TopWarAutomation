@@ -12,8 +12,9 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 1. ` pip install -r requirements.txt `
 2. Open Top War game
 3. `python3 Topwar.py --type w` : for warhammer bot
-4. `python3 Topwar.py --type r` : for join rally bot
+4. `python3 Topwar.py --type j` : for join rally bot
    - add `--skip` flag to skip joining refugee camp
+5. `python3 Topwar.py --type r` : for refugee camp bot
 
 
 ### Feature
@@ -21,7 +22,9 @@ Download on [Play store](https://play.google.com/store/apps/details?id=com.topwa
 1. Auto check remaining vit
 1. Auto use vit item
 1. Auto check available march queue
-1. Auto join guidl rally
+1. Auto join guild rally
+1. Auto attack refugee camp
+
 
 ### Instruction
 There are some required parameters, you need to fill this with your information
