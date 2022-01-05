@@ -108,7 +108,7 @@
     },
     "rally_btn": {
         "click_pos" : {
-            "x": 450,
+            "x": 600,
             "y": 600
         }
     },
@@ -150,7 +150,7 @@
     },
     "sequence": {
         "warhammer" : {
-            "click_pos": [{ "x":700, "y":380}, { "x":200, "y":590}, { "x":690, "y":1060}, { "x":450, "y":1200}, { "x":465, "y":847}],
+            "click_pos": [{ "x":700, "y":380}, { "x":200, "y":590}, { "x":690, "y":1060}, { "x":450, "y":1220}, { "x":465, "y":847}],
             "wait_duration": [0.25, 0.25, 0.2, 3.5, 0.25],
             "description": ["click rally tap", "click warhammer icon","click add level", "click search button", "click warhammer model"]
         },
