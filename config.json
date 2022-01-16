@@ -155,7 +155,7 @@
             "description": ["click rally tap", "click warhammer icon","click add level", "click search button", "click warhammer model"]
         },
         "refugee": {
-            "click_pos": [{ "x":830, "y":1330}, { "x":450, "y":1500}, { "x":450, "y":800}, { "x":450, "y":560}, { "x":470, "y":1350}, { "x":450, "y":650}],
+            "click_pos": [{ "x":830, "y":1330}, { "x":450, "y":1500}, { "x":450, "y":800}, { "x":580, "y":580}, { "x":470, "y":1350}, { "x":450, "y":650}],
             "wait_duration": [1.5, 1, 0.5, 0.5, 0.5, 0.5],
             "description": ["open inventory", "click use refugee letter","click refugee camp", "click rally", "click formation 2nd", "click battle"]
         }
